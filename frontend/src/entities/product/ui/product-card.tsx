@@ -4,6 +4,7 @@ import { Product } from '../model/types';
 import { Card, CardContent, CardFooter, CardHeader } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
+import { Eye, Heart } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -38,9 +39,20 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       <CardContent className="p-4">
         <h3 className="font-semibold text-lg mb-1 line-clamp-1">{product.title}</h3>
         <p className="text-sm text-gray-500 line-clamp-2 mb-3">{product.description}</p>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <span className="text-2xl font-bold text-purple-600">
             {product.price.toLocaleString('ru-RU')} ₽
+          </span>
+        </div>
+        {/* Статистика */}
+        <div className="flex items-center gap-4 text-xs text-gray-500">
+          <span className="flex items-center gap-1">
+            <Eye className="h-3 w-3" />
+            {product.views_count || 0}
+          </span>
+          <span className="flex items-center gap-1">
+            <Heart className="h-3 w-3" />
+            {product.favorites_count || 0}
           </span>
         </div>
       </CardContent>

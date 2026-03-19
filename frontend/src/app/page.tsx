@@ -1,5 +1,3 @@
-import { Header } from '@/widgets/header/ui/header';
-import { Footer } from '@/widgets/footer/ui/footer';
 import { HeroBanner } from '@/widgets/hero-banner/ui/hero-banner';
 import { CategoriesBlock } from '@/widgets/categories-block/ui/categories-block';
 import { DealsBlock } from '@/widgets/deals-block/ui/deals-block';
@@ -96,25 +94,21 @@ const popularProducts: Product[] = [
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-      
       <main className="flex-1">
         <HeroBanner />
         <CategoriesBlock />
         <DealsBlock />
-        <ProductsBlock 
-          title="Новые товары" 
-          products={newProducts} 
+        <ProductsBlock
+          title="Новые товары"
+          products={newProducts}
           viewAllLink="/catalog?sort=new"
         />
-        <ProductsBlock 
-          title="Популярные товары" 
-          products={popularProducts} 
+        <ProductsBlock
+          title="Популярные товары"
+          products={popularProducts}
           viewAllLink="/catalog?sort=popular"
         />
       </main>
-      
-      <Footer />
     </div>
   )
 }

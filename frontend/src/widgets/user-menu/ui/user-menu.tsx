@@ -8,7 +8,6 @@ import {
   LogOut,
   Settings,
   ShoppingBag,
-  Heart,
   Wallet,
   ChevronRight,
   Package,
@@ -58,6 +57,11 @@ export function UserMenu({ userEmail, userBalance = 0, avatarUrl }: UserMenuProp
       href: '/profile',
     },
     {
+      label: 'Сообщения',
+      icon: MessageCircle,
+      href: '/chat',
+    },
+    {
       label: 'Мои заказы',
       icon: ShoppingBag,
       href: '/orders',
@@ -66,16 +70,6 @@ export function UserMenu({ userEmail, userBalance = 0, avatarUrl }: UserMenuProp
       label: 'Мои объявления',
       icon: Package,
       href: '/products/my',
-    },
-    {
-      label: 'Избранное',
-      icon: Heart,
-      href: '/favorites',
-    },
-    {
-      label: 'Сообщения',
-      icon: MessageCircle,
-      href: '/chat',
     },
     {
       label: 'Настройки',
@@ -95,13 +89,15 @@ export function UserMenu({ userEmail, userBalance = 0, avatarUrl }: UserMenuProp
           className="flex items-center gap-2 hover:bg-purple-50 h-10 px-2"
         >
           {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt={displayName}
-              width={32}
-              height={32}
-              className="rounded-full object-cover"
-            />
+            <div className="h-8 w-8 rounded-full overflow-hidden">
+              <Image
+                src={avatarUrl}
+                alt={displayName}
+                width={32}
+                height={32}
+                className="w-full h-full object-cover"
+              />
+            </div>
           ) : (
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-600 font-semibold text-sm">
               {userInitial}
@@ -121,13 +117,15 @@ export function UserMenu({ userEmail, userBalance = 0, avatarUrl }: UserMenuProp
         <div className="p-4 border-b bg-gradient-to-r from-purple-50 to-purple-100">
           <div className="flex items-center gap-3">
             {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={displayName}
-                width={48}
-                height={48}
-                className="rounded-full object-cover"
-              />
+              <div className="h-12 w-12 rounded-full overflow-hidden">
+                <Image
+                  src={avatarUrl}
+                  alt={displayName}
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             ) : (
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-200 text-purple-700 font-bold text-lg">
                 {userInitial}

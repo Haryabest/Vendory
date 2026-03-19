@@ -6,8 +6,7 @@ import { createClient } from '@/utils/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
-import { Wallet, ArrowLeft, Banknote } from 'lucide-react';
-import Link from 'next/link';
+import { Wallet, Banknote } from 'lucide-react';
 
 export default function WithdrawPage() {
   const router = useRouter();
@@ -47,14 +46,7 @@ export default function WithdrawPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <div className="flex items-center gap-2 mb-2">
-            <Link href="/profile">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <CardTitle className="text-2xl font-bold">Вывод средств</CardTitle>
-          </div>
+          <CardTitle className="text-2xl font-bold">Вывод средств</CardTitle>
           <CardDescription>
             Вывод на банковскую карту или счет
           </CardDescription>

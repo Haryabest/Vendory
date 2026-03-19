@@ -7,6 +7,8 @@ export interface Product {
   categoryId?: string;
   status: string;
   stock: number;
+  views_count?: number;
+  favorites_count?: number;
   createdAt: string;
   updatedAt: string;
 }

@@ -14,7 +14,7 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    email: '',
+    emailOrUsername: '',
     password: '',
   });
 
@@ -26,10 +26,31 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
+      // Проверяем, email это или username
+      const isEmail = formData.emailOrUsername.includes('@');
+      
+      let signInData: any = {
         password: formData.password,
-      });
+      };
+
+      if (isEmail) {
+        signInData.email = formData.emailOrUsername;
+      } else {
+        // Поиск пользователя по username
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('email')
+          .eq('username', formData.emailOrUsername)
+          .single();
+
+        if (userError || !userData) {
+          throw new Error('Пользователь не найден');
+        }
+
+        signInData.email = userData.email;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword(signInData);
 
       if (error) throw error;
 
@@ -78,18 +99,18 @@ export default function SignInPage() {
 
           <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="email">
-                Email
+              <label className="text-sm font-medium" htmlFor="emailOrUsername">
+                Email или имя пользователя
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
+                  id="emailOrUsername"
+                  type="text"
+                  placeholder="name@example.com или username"
                   className="pl-10"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  value={formData.emailOrUsername}
+                  onChange={(e) => setFormData({ ...formData, emailOrUsername: e.target.value })}
                   required
                 />
               </div>
