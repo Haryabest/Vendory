@@ -1,0 +1,423 @@
+// See https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String?
+  avatarUrl String?  @map("avatar_url")
+  role      UserRole @default(BUYER)
+  balance   Decimal  @default(0)
+  isBanned  Boolean  @default(false) @map("is_banned")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+model UserSettings {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  language  String   @default("ru")
+  currency  String   @default("RUB")
+  notificationsEnabled Boolean @default(true) @map("notifications_enabled")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("user_settings")
+}
+
+model UserSession {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  ip        String
+  userAgent String   @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("user_sessions")
+}
+
+model Seller {
+  id           String   @id @default(uuid())
+  userId       String   @unique @map("user_id")
+  rating       Decimal  @default(0)
+  reviewsCount Int      @default(0) @map("reviews_count")
+  totalSales   Int      @default(0) @map("total_sales")
+  isVerified   Boolean  @default(false) @map("is_verified")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("sellers")
+}
+
+model SellerVerification {
+  id           String             @id @default(uuid())
+  sellerId     String             @unique @map("seller_id")
+  status       VerificationStatus @default(PENDING)
+  documentsUrl String[]           @map("documents_url")
+  createdAt    DateTime           @default(now()) @map("created_at")
+
+  @@map("seller_verification")
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ProductCategory {
+  id        String   @id @default(uuid())
+  name      String
+  parentId  String?  @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("product_categories")
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  sellerId    String        @map("seller_id")
+  title       String
+  description String
+  price       Decimal
+  categoryId  String?       @map("category_id")
+  status      ProductStatus @default(ACTIVE)
+  stock       Int           @default(0)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  SOLD_OUT
+  ARCHIVED
+}
+
+model ProductItem {
+  id            String    @id @default(uuid())
+  productId     String    @map("product_id")
+  content       String
+  isSold        Boolean   @default(false) @map("is_sold")
+  reservedUntil DateTime? @map("reserved_until")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@map("product_items")
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String  @map("product_id")
+  url       String
+
+  @@map("product_images")
+}
+
+model ProductTag {
+  id   String @id @default(uuid())
+  name String
+
+  @@map("product_tags")
+}
+
+model ProductTagRelation {
+  productId String @map("product_id")
+  tagId     String @map("tag_id")
+
+  @@id([productId, tagId])
+  @@map("product_tag_relations")
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  buyerId    String      @map("buyer_id")
+  status     OrderStatus @default(PENDING)
+  totalPrice Decimal     @map("total_price")
+  currency   String      @default("RUB")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model OrderItem {
+  id            String  @id @default(uuid())
+  orderId       String  @map("order_id")
+  productId     String  @map("product_id")
+  productItemId String? @map("product_item_id")
+  price         Decimal
+
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  status    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("order_status_history")
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  orderId   String?       @map("order_id")
+  userId    String        @map("user_id")
+  amount    Decimal
+  currency  String        @default("RUB")
+  provider  String
+  status    PaymentStatus @default(PENDING)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model PaymentMethod {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String
+  details   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("payment_methods")
+}
+
+model Transaction {
+  id           String            @id @default(uuid())
+  userId       String            @map("user_id")
+  amount       Decimal
+  type         TransactionType
+  status       TransactionStatus @default(PENDING)
+  referenceId  String            @map("reference_id")
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PURCHASE
+  SALE
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Withdrawal {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  amount    Decimal
+  status    WithdrawalStatus @default(PENDING)
+  method    String
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@map("withdrawals")
+}
+
+enum WithdrawalStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
+model Deposit {
+  id        String        @id @default(uuid())
+  userId    String        @map("user_id")
+  amount    Decimal
+  provider  String
+  status    DepositStatus @default(PENDING)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("deposits")
+}
+
+enum DepositStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  userId    String   @map("user_id")
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("reviews")
+}
+
+model SellerReview {
+  id        String   @id @default(uuid())
+  sellerId  String   @map("seller_id")
+  userId    String   @map("user_id")
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("seller_reviews")
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  buyerId   String   @map("buyer_id")
+  sellerId  String   @map("seller_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("chats")
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String   @map("chat_id")
+  senderId  String   @map("sender_id")
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("messages")
+}
+
+model MessageAttachment {
+  id        String  @id @default(uuid())
+  messageId String  @map("message_id")
+  fileUrl   String  @map("file_url")
+
+  @@map("message_attachments")
+}
+
+model Favorite {
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([userId, productId])
+  @@map("favorites")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("cart_items")
+}
+
+model Dispute {
+  id        String        @id @default(uuid())
+  orderId   String        @map("order_id")
+  userId    String        @map("user_id")
+  reason    String
+  status    DisputeStatus @default(OPEN)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("disputes")
+}
+
+enum DisputeStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  CLOSED
+}
+
+model DisputeMessage {
+  id        String   @id @default(uuid())
+  disputeId String   @map("dispute_id")
+  senderId  String   @map("sender_id")
+  message   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("dispute_messages")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String
+  title     String
+  body      String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("notifications")
+}
+
+model LoginAttempt {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  ip        String
+  success   Boolean
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("login_attempts")
+}
+
+model BannedIp {
+  id        String   @id @default(uuid())
+  ip        String   @unique
+  reason    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("banned_ips")
+}
+
+model Setting {
+  key   String @id
+  value String
+
+  @@map("settings")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
