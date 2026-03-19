@@ -33,12 +33,14 @@ export function UserMenu({ userEmail, userBalance = 0, avatarUrl }: UserMenuProp
   const supabase = createClient();
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState('');
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUsername(user.user_metadata?.username || '');
+        setUserId(user.id);
       }
     };
     getUser();
@@ -54,7 +56,7 @@ export function UserMenu({ userEmail, userBalance = 0, avatarUrl }: UserMenuProp
     {
       label: 'Профиль',
       icon: User,
-      href: '/profile',
+      href: `/profile/${userId}`,
     },
     {
       label: 'Сообщения',
